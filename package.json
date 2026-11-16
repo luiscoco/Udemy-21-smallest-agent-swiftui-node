@@ -1,0 +1,19 @@
+{
+  "name": "smallest-agent-swiftui-node",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "dev": "npm --prefix backend run dev",
+    "start": "npm --prefix backend start",
+    "typecheck": "npm --prefix backend run typecheck",
+    "test": "npm --prefix backend test",
+    "generate:lesson": "node scripts/generate-lesson.mjs",
+    "build": "npm run generate:lesson && npm --prefix backend run build",
+    "verify:http": "node scripts/verify-http.mjs",
+    "verify:project": "node scripts/verify-project.mjs"
+  }
+}

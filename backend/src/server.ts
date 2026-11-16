@@ -1,0 +1,12 @@
+import {createServer} from 'node:http';
+import {loadEnvironment} from './environment.js';
+import {readConfig} from './config.js';
+import {createAgentService} from './agent-service.js';
+import {createAPIHandler} from './transport.js';
+const env=loadEnvironment(),config=readConfig(env);
+const allowedOrigins=new Set((env.ALLOWED_ORIGINS||'').split(',').map(s=>s.trim()).filter(Boolean));
+const {handle,abortAll}=createAPIHandler(config,createAgentService(config),allowedOrigins);
+const server=createServer(handle);server.requestTimeout=200000;
+const port=Number(env.API_PORT||9600);if(!Number.isInteger(port)||port<1||port>65535)throw Error('Invalid API_PORT.');
+server.listen(port,env.API_HOST||'127.0.0.1',()=>console.log('SwiftUI Agent API ready on port '+port));
+for(const signal of ['SIGINT','SIGTERM'])process.on(signal,()=>{abortAll();server.close(()=>process.exit(0));setTimeout(()=>process.exit(1),8000).unref();});

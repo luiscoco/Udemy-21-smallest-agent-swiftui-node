@@ -1,0 +1,32 @@
+@startuml
+skinparam backgroundColor #F8FBFF
+skinparam defaultFontSize 18
+participant "Student / Device" as Device
+participant "SwiftUI client" as SwiftUI
+participant "URLSession" as URLSession
+participant "Node API" as Node
+participant "Agent SDK runtime" as Sdk
+participant "Claude API" as Claude
+Device -> SwiftUI : 1. Run prompt
+SwiftUI -> URLSession : 2. Start native HTTP request
+URLSession -> Node : 3. Receive prompt in Node
+Node -> Node : 4. Validate Node input
+Node -> Sdk : 5. Start real SDK runtime
+Sdk -> Claude : 6. Exchange with Claude
+loop streamed SDK messages
+Sdk -> Node : 7. Project safe SDK message
+Node -> URLSession : 8. Flush Node SSE
+URLSession -> SwiftUI : 9. Decode SSE frames
+end
+alt complete
+Sdk -> Node : 10. Normalize final result
+SwiftUI -> SwiftUI : 11. Require result and done
+SwiftUI -> Device : 12. Render colored native output
+Node -> URLSession : 13. Complete stream
+else failure
+Node -> SwiftUI : 14. Send safe error
+SwiftUI -> Device : 15. Release UI after failure
+else missing key or invalid input
+Node -> SwiftUI : 16. Reject missing key
+end
+@enduml
